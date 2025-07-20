@@ -19,6 +19,11 @@ pipeline {
          steps {
             sh 'mvn pmd:pmd'
          }
+          post {
+              success {
+                  recordIssues sourceCodeRetention: 'LAST_BUILD', tools: [pmdParser(pattern: 'target/pmd.xml')]
+              }
+          }
       }
       stage('UnitTesting') {
          steps {
