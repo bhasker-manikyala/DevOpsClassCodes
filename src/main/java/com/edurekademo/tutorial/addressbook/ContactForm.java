@@ -27,9 +27,9 @@ public class ContactForm extends FormLayout {
     Button cancel = new Button("Cancel", this::cancel);
     TextField firstName = new TextField("First name");
     TextField lastName = new TextField("Last name");
-    TextField phone = new TextField("Telephone");
+    TextField phone = new TextField("Mobile");
     TextField email = new TextField("Email");
-    DateField birthDate = new DateField("DOB");
+    DateField birthDate = new DateField("Date of Birth");
 
     Contact contact;
 
