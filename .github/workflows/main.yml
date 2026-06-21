@@ -1,0 +1,71 @@
+name: Maven CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Clone Repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Setup Java
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Cache Maven Dependencies
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # Compile
+      - name: Compile
+        run: mvn compile
+
+      # Parallel Quality Checks
+      - name: PMD Code Review
+        run: mvn pmd:pmd
+
+      - name: Upload PMD Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pmd-report
+          path: target/pmd.xml
+
+      - name: Unit Testing
+        run: mvn test
+
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: junit-reports
+          path: target/surefire-reports/*.xml
+
+      # Package
+      - name: Package
+        run: mvn clean package
+
+      # Cleanup Workspace
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -rf target
